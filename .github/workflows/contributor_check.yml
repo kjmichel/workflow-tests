@@ -1,0 +1,15 @@
+name: contributor_check
+
+on: 
+  pull_request:
+
+# Removes all permissions for this workflow
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: pass
+        run: echo "passed"
+

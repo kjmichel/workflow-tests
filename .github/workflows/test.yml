@@ -4,7 +4,8 @@ on:
   workflow_call:
   workflow_dispatch:
   workflow_run:
-    workflows: [contributor_check]
+    workflows:
+      - contributor_check
     types:
       - completed
 
@@ -33,6 +34,7 @@ jobs:
         with:
           sha: ${{ github.event.workflow_run.head_sha }}
           status: pending
+          context: "Starting tests ..."
       - name: Checkout triggering commit
         uses: actions/checkout@v4
         with:

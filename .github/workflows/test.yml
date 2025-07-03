@@ -42,6 +42,10 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
       - name: Check README content
         run: cat README.md
+      - name: Check fake secret
+        env:
+          SECRET_KEY: ${{ secrets.NOT_A_REAL_SECRET_KEY }}
+        run: if [[ "$SECRET_KEY" == "NOT_A_REAL_SECRET_VAL" ]]; then echo "t"; else echo "f"; fi
       - uses: myrotvorets/set-commit-status-action@v2.0.1
         if: always()
         with:

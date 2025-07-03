@@ -30,10 +30,10 @@ jobs:
       contents: read
       statuses: write
     steps:
-      - uses: myrotvorets/set-commit-status-action@v2.0.1
-        with:
-          sha: ${{ github.event.workflow_run.head_sha }}
-          status: pending
+      # - uses: myrotvorets/set-commit-status-action@v2.0.1
+      #   with:
+      #     sha: ${{ github.event.workflow_run.head_sha }}
+      #     status: pending
       - name: Checkout triggering commit
         uses: actions/checkout@v4
         with:

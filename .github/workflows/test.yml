@@ -17,18 +17,23 @@ jobs:
       contents: read
       statuses: write
     steps:
-      - uses: myrotvorets/set-commit-status-action@v2.0.1
+      - name: Report status
+        uses: myrotvorets/set-commit-status-action@v2.0.1
         if: ${{ github.event_name == 'workflow_run' }}
         with:
           sha: ${{ github.event.workflow_run.head_sha }}
           status: pending
-      - if: |
+      - name: Fail on triggering workflow failure
+        if: |
           ${{
             github.event_name == 'workflow_run'
-            &&
-            github.event.workflow_run.conclusion != 'success'
+            && github.event.workflow_run.conclusion != 'success'
           }}
-        run: echo "Skipped tests due to failed trigger"; exit 1
+        run: |
+          echo ${{ github.event_name }}
+          echo ${{ github.event.workflow_run.conclusion }}
+          echo "Skipped tests due to failed trigger"
+          exit 1
       - name: Checkout triggering commit
         uses: actions/checkout@v4
         with:
@@ -36,14 +41,14 @@ jobs:
           # on the trigger type.
           ref: |
             ${{
-              github.event.workflow_run.head_sha || 
-              github.sha
+              github.event.workflow_run.head_sha
+              || github.sha
             }}
       - name: SHA check
         run: |
           echo "${{
-              github.event.workflow_run.head_sha || 
-              github.sha
+              github.event.workflow_run.head_sha
+              || github.sha
             }}"
       - name: Check README content
         run: cat README.md
@@ -55,8 +60,7 @@ jobs:
         if: |
           ${{
             always()
-            &&
-            github.event_name == 'workflow_run'
+            && github.event_name == 'workflow_run'
           }}
         with:
           sha: ${{ github.event.workflow_run.head_sha }}

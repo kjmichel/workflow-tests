@@ -13,11 +13,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # If this was triggered by a completed workflow, only run tests if that
-    # workflow was successful. Always run tests for other triggers.
-    if: |
-      ${{ github.event_name != 'workflow_run' }} ||
-      ${{ github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: read
       statuses: write
@@ -28,8 +23,11 @@ jobs:
           sha: ${{ github.event.workflow_run.head_sha }}
           status: pending
       - if: |
-          ${{ github.event_name == 'workflow_run' }} &&
-          ${{ github.event.workflow_run.conclusion != 'success' }}
+          ${{
+            github.event_name == 'workflow_run'
+            &&
+            github.event.workflow_run.conclusion != 'success'
+          }}
         run: echo "Skipped tests due to failed trigger"; exit 1
       - name: Checkout triggering commit
         uses: actions/checkout@v4
@@ -54,7 +52,12 @@ jobs:
           SECRET_KEY: ${{ secrets.NOT_A_REAL_SECRET_KEY }}
         run: if [[ "$SECRET_KEY" == "NOT_A_REAL_SECRET_VAL" ]]; then echo "t"; else echo "f"; fi
       - uses: myrotvorets/set-commit-status-action@v2.0.1
-        if: ${{ always() && github.event_name == 'workflow_run' }}
+        if: |
+          ${{
+            always()
+            &&
+            github.event_name == 'workflow_run'
+          }}
         with:
           sha: ${{ github.event.workflow_run.head_sha }}
           status: ${{ job.status }}

@@ -50,14 +50,12 @@ jobs:
           ref: |
             ${{
               github.event.workflow_run.head_sha || 
-              github.event.pull_request.head.sha ||
               github.sha
             }}
       - name: SHA check
         run: |
           echo "${{
               github.event.workflow_run.head_sha || 
-              github.event.pull_request.head.sha ||
               github.sha
             }}"
       - name: Check README content

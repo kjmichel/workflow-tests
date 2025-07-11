@@ -8,7 +8,6 @@ runs:
       with:
         sha: ${{ github.event.workflow_run.head_sha }}
         status: pending
-      shell: bash
     - name: Fail on triggering workflow failure
       if: ${{
           github.event_name == 'workflow_run'

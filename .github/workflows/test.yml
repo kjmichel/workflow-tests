@@ -29,6 +29,8 @@ jobs:
             }}
       - name: Setup
         uses: ./.github/actions/multi-trigger-setup
+      - name: Test
+        run: echo "pass"
       - name: SHA check
         run: |
           echo "${{

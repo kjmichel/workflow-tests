@@ -33,6 +33,28 @@ jobs:
           echo ${{ github.event.workflow_run.conclusion }}
           echo "Skipped tests due to failed trigger"
           exit 1
+      - name: Fail on change to workflow file on workflow_run trigger
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: |
+          default_branch="${{ github.event.repository.default_branch }}"
+          git fetch origin "default_branch"
+          workflow_file=$(echo ${{ github.workflow_ref }} | cut -d'/' -f3- | cut -d'@' -f1)
+          if [[ -n $(git diff "$default_branch" -- "$workflow_file") ]]; then
+            cat <<EOF
+            This job was triggered by a workflow_run event, which uses the
+            workflow file from the default branch of the repo. However,
+            changes were detected to this workflow file within the branch
+            being checked. Therefore, any signals that would be produced by
+            this workflow may not include the changes on the new branch. 
+            Failing this job to prevent false positive outcomes.
+
+            In order to pass this job, an owner of this repo must manually
+            invoke it from the github actions menu using the branch being
+            checked. That uses the workflow_dispatch trigger, which will
+            pick up the modified version of this workflow file.
+            EOF
+            exit 1;
+          fi
       - name: Checkout triggering commit
         uses: actions/checkout@v4
         with:

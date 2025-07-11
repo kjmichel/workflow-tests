@@ -17,6 +17,17 @@ jobs:
       contents: read
       statuses: write
     steps:
+      - name: Checkout triggering commit
+        uses: actions/checkout@v4
+        with:
+          # The path to the sha of the commit we want to test will depend
+          # on the trigger type.
+          ref: |
+            ${{
+              github.event.workflow_run.head_sha ||
+              github.event.pull_request.head.sha ||
+              github.sha
+            }}
       - uses: ./.github/actions/multi-trigger-setup
       - name: SHA check
         run: |

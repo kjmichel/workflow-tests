@@ -17,6 +17,22 @@ jobs:
       contents: read
       statuses: write
     steps:
+      - name: Report initial status after workflow_run trigger
+        if: ${{ github.event_name == 'workflow_run' }}
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          sha: ${{ github.event.workflow_run.head_sha }}
+          status: pending
+      - name: Fail on triggering workflow failure
+        if: ${{
+            github.event_name == 'workflow_run'
+            && github.event.workflow_run.conclusion != 'success'
+          }}
+        run: |
+          echo ${{ github.event_name }}
+          echo ${{ github.event.workflow_run.conclusion }}
+          echo "Skipped tests due to failed trigger"
+          exit 1
       - name: Checkout triggering commit
         uses: actions/checkout@v4
         with:
@@ -24,11 +40,9 @@ jobs:
           # on the trigger type.
           ref: |
             ${{
-              github.event.workflow_run.head_sha ||
-              github.event.pull_request.head.sha ||
-              github.sha
+              github.event.workflow_run.head_sha
+              || github.sha
             }}
-      - uses: ./.github/actions/multi-trigger-setup
       - name: SHA check
         run: |
           echo "${{
@@ -41,5 +55,12 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.NOT_A_REAL_SECRET_KEY }}
         run: if [[ "$SECRET_KEY" == "NOT_A_REAL_SECRET_VAL" ]]; then echo "t"; else echo "f"; fi
-      - run: sleep 30
-      - uses: ./.github/actions/multi-trigger-cleanup
+      - name: Report final status after workflow_run trigger
+        if: ${{
+            always()
+            && github.event_name == 'workflow_run'
+          }}
+        uses: myrotvorets/set-commit-status-action@v2.0.1
+        with:
+          sha: ${{ github.event.workflow_run.head_sha }}
+          status: ${{ job.status }}

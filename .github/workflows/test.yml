@@ -24,10 +24,7 @@ jobs:
           sha: ${{ github.event.workflow_run.head_sha }}
           status: pending
       - name: Fail on triggering workflow failure
-        if: |
-          ${{
-            github.event_name == 'workflow_run'
-          }}
+        if: ${{ github.event_name == 'workflow_run' }}
         run: |
           echo ${{ github.event_name }}
           echo ${{ github.event.workflow_run.conclusion }}

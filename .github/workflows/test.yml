@@ -11,11 +11,16 @@ on:
       - completed
 
 jobs:
+  try:
+    runs-on: ubuntu-latest
+    steps:
+      - run: exit 1
   test:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       statuses: write
+    needs: try
     steps:
       - name: Report initial status after workflow_run trigger
         if: ${{ github.event_name == 'workflow_run' }}

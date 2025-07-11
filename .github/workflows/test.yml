@@ -18,10 +18,17 @@ jobs:
       statuses: write
     steps:
       - name: Report initial status after workflow_run trigger
-        if: ${{ github.event_name == 'workflow_run' }}
+        if: ${{ 
+            github.event_name == 'workflow_run'
+            || github.event_name == 'workflow_dispatch'
+          }}
         uses: myrotvorets/set-commit-status-action@v2.0.1
         with:
-          sha: ${{ github.event.workflow_run.head_sha }}
+          sha: |
+            ${{
+              github.event.workflow_run.head_sha
+              || github.sha
+            }}
           status: pending
       - name: Fail on triggering workflow failure
         if: ${{
@@ -80,9 +87,16 @@ jobs:
       - name: Report final status after workflow_run trigger
         if: ${{
             always()
-            && github.event_name == 'workflow_run'
+            && (
+              github.event_name == 'workflow_run'
+              || github.event_name == 'workflow_dispatch'
+            )
           }}
         uses: myrotvorets/set-commit-status-action@v2.0.1
         with:
-          sha: ${{ github.event.workflow_run.head_sha }}
+          sha: |
+            ${{ 
+              github.event.workflow_run.head_sha
+              || github.sha
+            }}
           status: ${{ job.status }}

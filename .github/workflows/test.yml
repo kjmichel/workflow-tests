@@ -41,4 +41,5 @@ jobs:
         env:
           SECRET_KEY: ${{ secrets.NOT_A_REAL_SECRET_KEY }}
         run: if [[ "$SECRET_KEY" == "NOT_A_REAL_SECRET_VAL" ]]; then echo "t"; else echo "f"; fi
+      - run: sleep 30
       - uses: ./.github/actions/multi-trigger-cleanup

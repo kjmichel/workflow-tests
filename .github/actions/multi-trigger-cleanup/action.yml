@@ -11,3 +11,4 @@ runs:
       with:
         sha: ${{ github.event.workflow_run.head_sha }}
         status: ${{ job.status }}
+      shell: bash

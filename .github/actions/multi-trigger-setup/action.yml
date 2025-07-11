@@ -1,0 +1,31 @@
+name: 'Multi trigger setup'
+runs:
+  using: composite
+  steps:
+    - name: Report initial status after workflow_run trigger
+      if: ${{ github.event_name == 'workflow_run' }}
+      uses: myrotvorets/set-commit-status-action@v2.0.1
+      with:
+        sha: ${{ github.event.workflow_run.head_sha }}
+        status: pending
+    - name: Fail on triggering workflow failure
+      if: ${{
+          github.event_name == 'workflow_run'
+          && github.event.workflow_run.conclusion != 'success'
+        }}
+      run: |
+        echo ${{ github.event_name }}
+        echo ${{ github.event.workflow_run.conclusion }}
+        echo "Skipped tests due to failed trigger"
+        exit 1
+    - name: Checkout triggering commit
+      uses: actions/checkout@v4
+      with:
+        # The path to the sha of the commit we want to test will depend
+        # on the trigger type.
+        ref: |
+          ${{
+            github.event.workflow_run.head_sha ||
+            github.event.pull_request.head.sha ||
+            github.sha
+          }}
